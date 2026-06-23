@@ -1,1 +1,1 @@
-x
+document.body.insertAdjacentHTML('beforeend','<p>App ready</p>');
