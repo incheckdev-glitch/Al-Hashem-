@@ -1,11 +1,30 @@
-Al Hashem Market POS
+Al Hashem Market POS - Advanced Live Version
 
-Market and convenience store POS MVP.
+Advanced market and convenience store POS for Vercel and Supabase.
 
-Includes POS cashier, barcode-style product search, cart checkout, online orders, delivery, inventory, suppliers, customers, cashier closing, reports, and Supabase setup.
+Current scope:
+- Advanced dashboard / overview
+- POS cashier with product search, barcode/SKU fields, cart, quantity control, and stock deduction
+- Online ordering test flow
+- Orders command center
+- Delivery board
+- Inventory table with low-stock alerts
+- Suppliers and customers
+- Cashier closing
+- Reports and JSON export
+- Live Supabase mode through api/config.js
 
-Not included: restaurant tables, waiter flow, kitchen display, or QR menu.
+Not included:
+- QR menu
+- Restaurant table flow
+- Waiter flow
+- Kitchen display
 
-Vercel deployment: import this GitHub repo into Vercel as a static project. No build command is required.
+Vercel variables required:
+- NEXT_PUBLIC_SUPABASE_URL
+- NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY
 
-Supabase setup: run supabase-schema.sql in Supabase SQL Editor. The current app uses demo browser data first, then can be connected to the Supabase tables.
+Supabase setup:
+1. Run supabase-schema.sql
+2. Run testing-data.sql
+3. Redeploy Vercel
