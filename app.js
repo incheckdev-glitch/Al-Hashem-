@@ -1,1 +1,25 @@
-document.body.insertAdjacentHTML('beforeend','<p>App ready</p>');
+const products=[['Milk 1L','Dairy',1.35,42,0.82],['Bread','Bakery',0.85,31,0.4],['Rice 5kg','Groceries',7.5,14,5.8],['Water 6x1.5L','Beverages',2.25,64,1.4],['Tuna Can','Canned',1.1,7,0.72],['Chips','Snacks',0.9,22,0.43]];
+let cart=[];let orders=[];let deliveries=[];let customers=[['Walk-in',''],['Maya Haddad','Beirut']];let suppliers=[['Fresh Dairy Co','Dairy'],['Daily Goods','Groceries']];
+const pages=['Dashboard','POS','Online Orders','Delivery','Inventory','Suppliers','Customers','Closing','Reports','Supabase Setup'];
+const app=document.getElementById('app');
+function money(n){return '$'+Number(n||0).toFixed(2)}
+function nav(){app.innerHTML='<aside><h2>Al Hashem POS</h2><p>Market / convenience store</p>'+pages.map(p=>`<button onclick="go('${p}')">${p}</button>`).join('')+'<div class=panel><b>No QR menu</b><br>Vercel + Supabase ready.</div></aside><main id=view></main>';go('Dashboard')}
+function go(p){document.querySelectorAll('aside button').forEach(b=>b.classList.toggle('active',b.textContent==p));window.view.innerHTML=views[p]();}
+const total=()=>cart.reduce((s,i)=>s+i[2]*i.qty,0);
+function add(i){let p=products[i],c=cart.find(x=>x[0]==p[0]);c?c.qty++:cart.push({...p,qty:1});go('POS')}
+function sale(){if(!cart.length)return alert('Cart empty');orders.push({id:'SALE-'+(orders.length+1),type:'Store',status:'Paid',total:total(),items:cart.length});cart.forEach(c=>{let p=products.find(x=>x[0]==c[0]);p[3]-=c.qty});cart=[];alert('Sale completed');go('POS')}
+function online(){orders.push({id:'WEB-'+(orders.length+1),type:'Online',status:'New',total:18.45,items:4});alert('Online order created');go('Online Orders')}
+function delivery(){deliveries.push({id:'DEL-'+(deliveries.length+1),driver:'Unassigned',status:'Preparing',cash:18.45});go('Delivery')}
+const views={
+Dashboard(){let sales=orders.reduce((s,o)=>s+o.total,0);let low=products.filter(p=>p[3]<=10).length;return `<h1>Dashboard</h1><div class=cards><div class=card>Today Sales<strong>${money(sales)}</strong></div><div class=card>Orders<strong>${orders.length}</strong></div><div class=card>Low Stock<strong>${low}</strong></div><div class=card>Products<strong>${products.length}</strong></div></div><div class=panel><h3>System Scope</h3><p>POS, online ordering, delivery, inventory, suppliers, customers, closing and reports. No restaurant tables and no QR menu.</p></div>`},
+POS(){return `<h1>Cashier POS</h1><div class=pos><section><input placeholder='Search barcode / SKU / name'><div class=products>${products.map((p,i)=>`<button class=product onclick='add(${i})'><b>${p[0]}</b><span>${p[1]}</span><strong>${money(p[2])}</strong><small>Stock ${p[3]}</small></button>`).join('')}</div></section><aside class=panel><h3>Cart</h3>${cart.map(c=>`<div class=line><span>${c[0]} x ${c.qty}</span><b>${money(c[2]*c.qty)}</b></div>`).join('')||'Empty cart'}<hr><div class=line><b>Total</b><b>${money(total())}</b></div><button onclick='sale()'>Complete Sale</button></aside></div>`},
+'Online Orders'(){return `<h1>Online Ordering</h1><button onclick='online()'>Create Demo Online Order</button>${orders.map(o=>`<div class=order><b>${o.id}</b> ${o.type} - ${o.status}<span>${money(o.total)}</span> <button onclick='delivery()'>Send to Delivery</button></div>`).join('')}`},
+Delivery(){return `<h1>Delivery</h1>${deliveries.map(d=>`<div class=order><b>${d.id}</b> ${d.status} - ${d.driver}<span>${money(d.cash)}</span><button onclick="d.status='Out for Delivery';go('Delivery')">Out</button><button onclick="d.status='Delivered';go('Delivery')">Done</button></div>`).join('')||'<p>No deliveries yet.</p>'}`},
+Inventory(){return `<h1>Inventory</h1><table><tr><th>Product</th><th>Category</th><th>Stock</th><th>Cost</th><th>Sell</th></tr>${products.map(p=>`<tr><td>${p[0]}</td><td>${p[1]}</td><td>${p[3]}</td><td>${money(p[4])}</td><td>${money(p[2])}</td></tr>`).join('')}</table>`},
+Suppliers(){return `<h1>Suppliers</h1>${suppliers.map(s=>`<div class=panel><b>${s[0]}</b><br>${s[1]}</div>`).join('')}`},
+Customers(){return `<h1>Customers</h1>${customers.map(c=>`<div class=panel><b>${c[0]}</b><br>${c[1]||'Walk-in customer'}</div>`).join('')}`},
+Closing(){let cash=orders.reduce((s,o)=>s+o.total,0);return `<h1>Cashier Closing</h1><div class=panel><div class=line><span>Opening Cash</span><b>$100.00</b></div><div class=line><span>Expected Cash</span><b>${money(cash+100)}</b></div><input placeholder='Actual cash counted'><button>Close Shift</button></div>`},
+Reports(){let profit=orders.reduce((s,o)=>s+o.total*.32,0);return `<h1>Reports</h1><div class=cards><div class=card>Revenue<strong>${money(orders.reduce((s,o)=>s+o.total,0))}</strong></div><div class=card>Profit Est.<strong>${money(profit)}</strong></div><div class=card>Deliveries<strong>${deliveries.length}</strong></div><div class=card>Low Stock<strong>${products.filter(p=>p[3]<=10).length}</strong></div></div>`},
+'Supabase Setup'(){return `<h1>Supabase Setup</h1><div class=panel><p>Run supabase-schema.sql in Supabase SQL Editor. Then replace demo arrays with Supabase queries or add anon URL/key in config.</p><input placeholder='Supabase URL'><input placeholder='Anon key'><button>Save Config</button></div>`}
+};
+window.go=go;window.add=add;window.sale=sale;window.online=online;window.delivery=delivery;nav();
